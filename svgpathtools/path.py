@@ -2764,15 +2764,12 @@ class Path(MutableSequence):
         current_pos = None
         parts = []
         previous_segment = None
-        end = self[-1].end
     
         for segment in segments:
             seg_start = segment.start
-            # If the start of this segment does not coincide with the end of
-            # the last segment or if this segment is actually the close point
-            # of a closed path, then we should start a new subpath here.
-            if current_pos != seg_start or \
-                    (self_closed and seg_start == end and use_closed_attrib):
+            # Start a new subpath only at a discontinuity. A continuous curve
+            # can revisit the closing point without resetting smooth controls.
+            if current_pos != seg_start:
                 if rel:
                     _seg_start = seg_start - current_pos if current_pos is not None else seg_start
                 else:

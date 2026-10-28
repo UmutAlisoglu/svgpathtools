@@ -1228,6 +1228,23 @@ class TestPath(unittest.TestCase):
                         self.assertEqual(restored, path)
                         self.assertAlmostEqual(restored.length(), path.length())
 
+    def test_closed_curves_preserve_smooth_control_context(self):
+        paths = [
+            Path(QuadraticBezier(0j, 1, 0j),
+                 QuadraticBezier(0j, -1, 0j)),
+            Path(CubicBezier(0j, 1, 1j, 0j),
+                 CubicBezier(0j, -1j, -1, 0j)),
+        ]
+        for path in paths:
+            for relative in (False, True):
+                for smooth in (False, True):
+                    with self.subTest(path=path, relative=relative,
+                                      smooth=smooth):
+                        data = path.d(use_closed_attrib=True,
+                                      rel=relative, useSandT=smooth)
+                        self.assertEqual(data.lower().count('m'), 1)
+                        self.assertEqual(parse_path(data), path)
+
     def test_d(self):
         # the following two path represent the same path but in absolute and relative forms
         abs_s = 'M 38.0,130.0 C 37.0,132.0 38.0,136.0 40.0,137.0 L 85.0,161.0 C 87.0,162.0 91.0,162.0 93.0,160.0 L 127.0,133.0 C 129.0,131.0 129.0,128.0 127.0,126.0 L 80.0,70.0 C 78.0,67.0 75.0,68.0 74.0,70.0 Z'
