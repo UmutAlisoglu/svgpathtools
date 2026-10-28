@@ -2751,7 +2751,9 @@ class Path(MutableSequence):
             return ''
         if use_closed_attrib:
             self_closed = self.iscontinuous() and self.isclosed()
-            if self_closed:
+            # Z can replace a closing line, but not a Bezier curve or arc.
+            # Keep a sole zero-length line so the path retains its position.
+            if self_closed and len(self) > 1 and isinstance(self[-1], Line):
                 segments = self[:-1]
             else:
                 segments = self[:]
